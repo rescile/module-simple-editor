@@ -2,5 +2,5 @@
 name = "Simple Editor"
 url = "https://github.com/rescile/module-simple-editor"
 version = "0.0.1"
-description = "Edit asset files in the editor."
+description = "Edit asset files directly in the browser."
 rescile_version = ">=0.1.114"
