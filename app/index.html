@@ -3,6 +3,11 @@
     <head>
         <meta charset="UTF-8" />
         <title>Asset-Editor</title>
+        <link
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+            rel="stylesheet"
+        />
+
         <style>
             :root {
                 --primary: #007bff;
@@ -34,10 +39,22 @@
             }
             .overlay-card {
                 background: white;
-                padding: 2rem;
+                padding: 2.5rem;
                 border-radius: 12px;
                 box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
                 text-align: center;
+            }
+
+            /* Icon sizes */
+            .material-icons.large {
+                font-size: 64px;
+                color: var(--primary);
+                margin-bottom: 1rem;
+            }
+            .material-icons.btn-icon {
+                font-size: 20px;
+                vertical-align: middle;
+                margin-right: 8px;
             }
 
             /* Sidebar & Main Layout */
@@ -52,6 +69,9 @@
                 padding: 1rem;
                 border-bottom: 1px solid #eee;
                 font-weight: bold;
+                display: flex;
+                align-items: center;
+                gap: 8px;
             }
             .file-list {
                 flex-grow: 1;
@@ -66,6 +86,9 @@
                 border-bottom: 1px solid #f9f9f9;
                 font-size: 0.9rem;
                 transition: 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 10px;
             }
             .file-item:hover {
                 background: #f0f7ff;
@@ -103,7 +126,6 @@
                 width: 100%;
                 background: white;
             }
-            th,
             td {
                 border: 1px solid #eee;
                 padding: 0;
@@ -128,6 +150,8 @@
                 background: white;
                 cursor: pointer;
                 font-weight: 500;
+                display: inline-flex;
+                align-items: center;
             }
             button.primary {
                 background: var(--primary);
@@ -158,16 +182,23 @@
         </div>
 
         <div class="sidebar">
-            <div class="sidebar-header">CSV Assets</div>
+            <div class="sidebar-header">
+                <span class="material-icons">storage</span>
+                Asset Files
+            </div>
             <ul id="fileList" class="file-list"></ul>
         </div>
 
         <div class="main-content">
             <div class="toolbar">
                 <button onclick="saveFile()" class="primary">
+                    <span class="material-icons btn-icon">save</span>
                     Save Changes
                 </button>
-                <button onclick="addRow()">+ Add Row</button>
+                <button onclick="addRow()">
+                    <span class="material-icons btn-icon">add</span>
+                    Add Row
+                </button>
                 <span
                     id="currentFileName"
                     style="margin-left: auto; color: #888; font-size: 0.85rem"
@@ -184,12 +215,10 @@
 
             async function unlockFolder() {
                 try {
-                    // Open directory picker
                     dirHandle = await window.showDirectoryPicker({
                         mode: "readwrite",
                     });
 
-                    // Hide overlay
                     document.getElementById("overlay").style.opacity = "0";
                     setTimeout(
                         () =>
@@ -211,8 +240,9 @@
                     if (entry.kind === "file" && entry.name.endsWith(".csv")) {
                         const li = document.createElement("li");
                         li.className = "file-item";
-                        li.innerText = entry.name;
-                        li.onclick = (e) => loadFile(entry, e.target);
+                        // Added a small icon to the file items too
+                        li.innerHTML = `<span class="material-icons" style="font-size:18px">description</span> ${entry.name}`;
+                        li.onclick = (e) => loadFile(entry, li);
                         list.appendChild(li);
                     }
                 }
@@ -274,11 +304,11 @@
                 await writable.write(csvContent);
                 await writable.close();
 
-                // Brief visual feedback
-                const btn = event.target;
-                const originalText = btn.innerText;
-                btn.innerText = "✓ Saved!";
-                setTimeout(() => (btn.innerText = originalText), 2000);
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.innerHTML =
+                    '<span class="material-icons btn-icon">check</span> Saved!';
+                setTimeout(() => (btn.innerHTML = originalText), 2000);
             }
         </script>
     </body>
