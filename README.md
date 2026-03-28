@@ -12,10 +12,9 @@ A lightweight, browser-based utility designed for local data management. This ap
 
 ## Deployment and Initialization
 
-1. **Access:** Open the `index.html` file in a compatible web browser.
-2. **Directory Mapping:** Use the **Initialize Assets** overlay to map the local directory containing the target CSV files.
-3. **Modification:** Select a file from the sidebar to populate the editor. Data is modified via the interactive table cells.
-4. **Commitment:** Changes are written back to the source file via the **Save Changes** command.
+1. **Directory Mapping:** Use the **Initialize Assets** overlay to map the local directory containing the target CSV files.
+2. **Modification:** Select a file from the sidebar to populate the editor. Data is modified via the interactive table cells.
+3. **Commitment:** Changes are written back to the source file via the **Save Changes** command.
 
 ## Compatibility and Technical Requirements
 
