@@ -1,43 +1,36 @@
 # Simple CSV Editor
 
-A lightweight, browser-based CSV editor designed for local workflows. This tool allows you to manage datasets directly from your file system without ever uploading data to a server.
+A lightweight, browser-based utility designed for local data management. This application provides a streamlined interface for editing CSV files directly from the local file system without requiring external server communication or data uploads.
 
-## Features
+## Core Capabilities
 
-- **Privacy First:** Runs entirely in your browser. Data never leaves your machine.
-- **Zero Installation:** No Node.js, Python, or databases required. Just open the HTML file.
-- **Folder Sync:** Uses the modern File System Access API to edit and save files directly to your `./data/assets` folder.
-- **Material UI:** A clean, sidebar-driven interface using Google Material Icons.
-- **Vanilla Tech:** Built with pure HTML, CSS, and JavaScript for maximum speed and compatibility.
+- **Local-First Architecture:** Operations are performed entirely within the client-side environment to ensure data privacy and security.
+- **Zero-Dependency Deployment:** the application requires no installation, runtime environments (Node.js/Python), or external libraries.
+- **Direct File System Synchronization:** Integration with the File System Access API allows for seamless reading and overwriting of files within a designated directory.
+- **Persistent Sidebar Navigation:** Automatic indexing of CSV files within the selected workspace for rapid switching between datasets.
+- **Standardized UI:** Interface elements are built using Google Material Icons for an intuitive, industry-standard user experience.
 
-## Getting Started
+## Deployment and Initialization
 
-1. **Clone or Download** this repository to your local machine.
-2. Ensure your data is organized (e.g., in a `/data/assets` folder).
-3. Open `index.html` in a modern web browser (Chrome or Edge recommended).
-4. Click **Open Directory** and select your assets folder.
-5. Click any CSV in the sidebar to start editing!
+1. **Access:** Open the `index.html` file in a compatible web browser.
+2. **Directory Mapping:** Use the **Initialize Assets** overlay to map the local directory containing the target CSV files.
+3. **Modification:** Select a file from the sidebar to populate the editor. Data is modified via the interactive table cells.
+4. **Commitment:** Changes are written back to the source file via the **Save Changes** command.
 
-## Usage
+## Compatibility and Technical Requirements
 
-- **Editing:** Click any cell to change its value.
-- **Adding Data:** Use the **+ Add Row** button to append new entries.
-- **Saving:** Click **Save Changes** to overwrite the local file. The browser will ask for permission the first time you save.
+Full support for direct file overwriting is available in browsers implementing the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API):
+- **Google Chrome** (Version 86+)
+- **Microsoft Edge** (Version 86+)
+- **Opera** (Version 72+)
 
-## Requirements
-
-To use the **Direct Save** feature, you need a browser that supports the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API):
-- Google Chrome (Desktop)
-- Microsoft Edge (Desktop)
-- Opera (Desktop)
-
-*Note: Firefox and Safari users can still open files but will be prompted to "Download" the edited version rather than saving in-place.*
+*Note: Browsers lacking API support (such as Firefox or Safari) will default to a standard download-and-replace workflow.*
 
 ## License
 
-Licensed under the **Apache License, Version 2.0**. 
+This project is licensed under the **Apache License, Version 2.0**. 
 
-See the [LICENSE](LICENSE) file for more details.
+Full license details are available in the [LICENSE](LICENSE) file.
 
 ---
-*Created with focus on simplicity and local-first data management.*
+*Technical Utility for Local-First Asset Management.*
