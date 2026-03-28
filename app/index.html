@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Asset-Editor</title>
+        <style>
+            :root {
+                --primary: #007bff;
+                --bg: #f0f2f5;
+            }
+            body {
+                font-family: system-ui, sans-serif;
+                margin: 0;
+                display: flex;
+                height: 100vh;
+                background: var(--bg);
+            }
+
+            /* Overlay Styles */
+            #overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(240, 242, 245, 0.9);
+                backdrop-filter: blur(8px);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                transition: opacity 0.3s ease;
+            }
+            .overlay-card {
+                background: white;
+                padding: 2rem;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+
+            /* Sidebar & Main Layout */
+            .sidebar {
+                width: 260px;
+                background: white;
+                border-right: 1px solid #ddd;
+                display: flex;
+                flex-direction: column;
+            }
+            .sidebar-header {
+                padding: 1rem;
+                border-bottom: 1px solid #eee;
+                font-weight: bold;
+            }
+            .file-list {
+                flex-grow: 1;
+                overflow-y: auto;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            .file-item {
+                padding: 12px 16px;
+                cursor: pointer;
+                border-bottom: 1px solid #f9f9f9;
+                font-size: 0.9rem;
+                transition: 0.2s;
+            }
+            .file-item:hover {
+                background: #f0f7ff;
+                color: var(--primary);
+            }
+            .active-file {
+                background: #e7f1ff;
+                color: var(--primary);
+                font-weight: 600;
+                border-left: 4px solid var(--primary);
+            }
+
+            .main-content {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .toolbar {
+                padding: 1rem;
+                background: white;
+                border-bottom: 1px solid #ddd;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+            .table-container {
+                flex-grow: 1;
+                overflow: auto;
+                padding: 1rem;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                background: white;
+            }
+            th,
+            td {
+                border: 1px solid #eee;
+                padding: 0;
+            }
+            input {
+                width: 100%;
+                border: none;
+                padding: 10px;
+                box-sizing: border-box;
+                font-size: 0.9rem;
+            }
+            input:focus {
+                outline: 2px solid var(--primary);
+                background: #fff;
+                z-index: 1;
+            }
+
+            button {
+                padding: 10px 20px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                background: white;
+                cursor: pointer;
+                font-weight: 500;
+            }
+            button.primary {
+                background: var(--primary);
+                color: white;
+                border: none;
+            }
+            button:hover {
+                opacity: 0.9;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="overlay">
+            <div class="overlay-card">
+                <h2 style="margin-top: 0">Ready to Edit Assets?</h2>
+                <p style="color: #666; margin-bottom: 2rem">
+                    Please select your <b>data/assets</b> folder to begin.
+                </p>
+                <button
+                    class="primary"
+                    onclick="unlockFolder()"
+                    style="font-size: 1.1rem; padding: 15px 30px"
+                >
+                    📁 Open Asset Directory
+                </button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-header">CSV Assets</div>
+            <ul id="fileList" class="file-list"></ul>
+        </div>
+
+        <div class="main-content">
+            <div class="toolbar">
+                <button onclick="saveFile()" class="primary">
+                    Save Changes
+                </button>
+                <button onclick="addRow()">+ Add Row</button>
+                <span
+                    id="currentFileName"
+                    style="margin-left: auto; color: #888; font-size: 0.85rem"
+                ></span>
+            </div>
+            <div class="table-container">
+                <table id="csvTable"></table>
+            </div>
+        </div>
+
+        <script>
+            let dirHandle;
+            let currentFileHandle;
+
+            async function unlockFolder() {
+                try {
+                    // Open directory picker
+                    dirHandle = await window.showDirectoryPicker({
+                        mode: "readwrite",
+                    });
+
+                    // Hide overlay
+                    document.getElementById("overlay").style.opacity = "0";
+                    setTimeout(
+                        () =>
+                            (document.getElementById("overlay").style.display =
+                                "none"),
+                        300,
+                    );
+
+                    await refreshFileList();
+                } catch (err) {
+                    alert("Permission is required to edit local files.");
+                }
+            }
+
+            async function refreshFileList() {
+                const list = document.getElementById("fileList");
+                list.innerHTML = "";
+                for await (const entry of dirHandle.values()) {
+                    if (entry.kind === "file" && entry.name.endsWith(".csv")) {
+                        const li = document.createElement("li");
+                        li.className = "file-item";
+                        li.innerText = entry.name;
+                        li.onclick = (e) => loadFile(entry, e.target);
+                        list.appendChild(li);
+                    }
+                }
+            }
+
+            async function loadFile(handle, element) {
+                currentFileHandle = handle;
+                document
+                    .querySelectorAll(".file-item")
+                    .forEach((el) => el.classList.remove("active-file"));
+                element.classList.add("active-file");
+
+                const file = await handle.getFile();
+                const content = await file.text();
+                document.getElementById("currentFileName").innerText =
+                    handle.name;
+                renderTable(content);
+            }
+
+            function renderTable(csvText) {
+                const table = document.getElementById("csvTable");
+                table.innerHTML = "";
+                const rows = csvText
+                    .split(/\r?\n/)
+                    .filter((r) => r.trim() !== "");
+                rows.forEach((row) => {
+                    const tr = table.insertRow();
+                    row.split(",").forEach((cell) => {
+                        const td = tr.insertCell();
+                        const input = document.createElement("input");
+                        input.value = cell.replace(/^"|"$/g, "");
+                        td.appendChild(input);
+                    });
+                });
+            }
+
+            function addRow() {
+                const table = document.getElementById("csvTable");
+                if (!table.rows.length) return;
+                const colCount = table.rows[0].cells.length;
+                const row = table.insertRow();
+                for (let i = 0; i < colCount; i++) {
+                    row.insertCell().innerHTML = '<input value="">';
+                }
+            }
+
+            async function saveFile() {
+                if (!currentFileHandle) return;
+                const table = document.getElementById("csvTable");
+                let csvContent = "";
+                Array.from(table.rows).forEach((row) => {
+                    const rowData = Array.from(row.cells)
+                        .map((td) => `"${td.firstChild.value}"`)
+                        .join(",");
+                    csvContent += rowData + "\r\n";
+                });
+
+                const writable = await currentFileHandle.createWritable();
+                await writable.write(csvContent);
+                await writable.close();
+
+                // Brief visual feedback
+                const btn = event.target;
+                const originalText = btn.innerText;
+                btn.innerText = "✓ Saved!";
+                setTimeout(() => (btn.innerText = originalText), 2000);
+            }
+        </script>
+    </body>
+</html>
